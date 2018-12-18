@@ -1,6 +1,6 @@
-require('dotenv').config();
-const request = require('request');
 const yargs = require('yargs');
+
+const geocode = require('./geocode/geocode');
 
 const { argv } = yargs
   .options({
@@ -13,23 +13,11 @@ const { argv } = yargs
   })
   .help()
   .alias('help', 'h');
-const encodedAddress = encodeURIComponent(argv.address);
 
-request({
-  url: `http://www.mapquestapi.com/geocoding/v1/address?key=${process.env.KEY}&location=${encodedAddress}`,
-  json: true,
-}, (error, response, body) => {
-  if (error) {
-    console.log('Unable to connect to MapQuest servers.');
-  } else if (body.results[0].locations[0].geocodeQuality === 'ADDRESS' || body.results[0].locations[0].geocodeQuality === 'STREET' || body.results[0].locations[0].geocodeQuality === 'ZIP') {
-    const {
-      latLng, street, adminArea4, adminArea3, adminArea1,
-    } = body.results[0].locations[0];
-    console.log(`Address: ${(street) ? (`${street}, `) : ''}${(adminArea4) ? (`${adminArea4}, `) : ''}${(adminArea3) ? (`${adminArea3}, `) : ''}${(adminArea1) || ''}`);
-    console.log(`Latitude: ${latLng.lat}`);
-    console.log(`Longitude: ${latLng.lng}`);
+geocode.geocodeAddress(argv.address, (errorMessage, result) => {
+  if (errorMessage) {
+    console.log(errorMessage);
   } else {
-    console.log('Unable to find that address. Please provide a more precise address.');
-    console.log(body.results[0].locations[0].geocodeQuality);
+    console.log(JSON.stringify(result, undefined, 2));
   }
 });
