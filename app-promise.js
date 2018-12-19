@@ -34,10 +34,14 @@ axios(geocodeURL)
     return axios(weatherURL);
   })
   .then((response) => {
-    const { temperature, apparentTemperature } = response.data.currently;
+    const {
+      temperature, apparentTemperature, summary, windSpeed,
+    } = response.data.currently;
 
     console.log(`Current temperature: ${temperature}°F`);
     console.log(`It feels like: ${apparentTemperature}°F`);
+    console.log(`The weather is: ${summary.toLowerCase()}`);
+    console.log(`The wind speed is: ${windSpeed} km/h`);
   })
   .catch((error) => {
     if (error.code === 'ENOTFOUND') {
